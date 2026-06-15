@@ -21,7 +21,7 @@
 
     <!-- Statusbereich -->
     <section class="status" aria-label="Aktueller Status">
-      <article class="status-card">
+      <article class="status-card status-card--today">
         <span class="status-card__label">Heute</span>
         <span class="status-card__value" id="todayValue">&ndash;</span>
       </article>
@@ -29,8 +29,9 @@
         <span class="status-card__label">Nächster Termin</span>
         <span class="status-card__value" id="nextDateValue">&ndash;</span>
         <span class="status-card__hint" id="nextCountdown"></span>
+        <span class="status-card__out" id="nextOutInline"></span>
       </article>
-      <article class="status-card">
+      <article class="status-card status-card--out">
         <span class="status-card__label">Setzt als Nächstes aus</span>
         <span class="status-card__value" id="nextOutValue">&ndash;</span>
       </article>

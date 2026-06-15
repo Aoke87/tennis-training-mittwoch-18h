@@ -86,18 +86,21 @@ function renderStatus(today) {
 
   const nextDateEl = document.getElementById("nextDateValue");
   const nextOutEl = document.getElementById("nextOutValue");
+  const nextOutInlineEl = document.getElementById("nextOutInline");
   const countdownEl = document.getElementById("nextCountdown");
 
   if (nextIndex === -1) {
     nextDateEl.textContent = "Saison beendet";
     countdownEl.textContent = "";
     nextOutEl.textContent = "\u2013";
+    nextOutInlineEl.textContent = "";
     return;
   }
 
   const next = SCHEDULE[nextIndex];
   nextDateEl.textContent = `${formatDateLong(next.date)}, ${pad2(START_HOUR)}:00 Uhr`;
   nextOutEl.textContent = next.sitOut;
+  nextOutInlineEl.textContent = `${next.sitOut} setzt aus`;
 
   const diffDays = Math.round(
     (startOfDay(next.date).getTime() - startOfDay(today).getTime()) / 86400000
@@ -153,6 +156,7 @@ function renderTable(today) {
 
     // Setzt aus
     const outTd = document.createElement("td");
+    outTd.className = "cell-out";
     const outSpan = document.createElement("span");
     outSpan.className = "out-name";
     outSpan.textContent = session.sitOut;
