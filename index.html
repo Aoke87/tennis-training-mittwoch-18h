@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Tennis Training - Terminübersicht</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <main class="page">
+    <header class="page__header">
+      <div class="brand">
+        <span class="brand__ball" aria-hidden="true"></span>
+        <h1 class="brand__title">Tennis Training</h1>
+      </div>
+      <p class="page__subtitle">Wöchentlich mittwochs, 18:00&ndash;19:00 Uhr &middot; Saison 2026</p>
+    </header>
+
+    <!-- Statusbereich -->
+    <section class="status" aria-label="Aktueller Status">
+      <article class="status-card">
+        <span class="status-card__label">Heute</span>
+        <span class="status-card__value" id="todayValue">&ndash;</span>
+      </article>
+      <article class="status-card status-card--accent">
+        <span class="status-card__label">Nächster Termin</span>
+        <span class="status-card__value" id="nextDateValue">&ndash;</span>
+        <span class="status-card__hint" id="nextCountdown"></span>
+      </article>
+      <article class="status-card">
+        <span class="status-card__label">Setzt als Nächstes aus</span>
+        <span class="status-card__value" id="nextOutValue">&ndash;</span>
+      </article>
+    </section>
+
+    <!-- Personenauswahl + Download -->
+    <section class="controls" aria-label="Personenauswahl und Kalender-Export">
+      <div class="controls__field">
+        <label class="controls__label" for="personSelect">Person auswählen</label>
+        <select class="controls__select" id="personSelect">
+          <option value="">Alle anzeigen</option>
+        </select>
+      </div>
+      <button class="controls__button" id="downloadBtn" type="button" disabled>
+        Kalender (.ics) herunterladen
+      </button>
+      <p class="controls__hint" id="controlsHint">
+        Wähle eine Person, um deine Aussetz-Termine hervorzuheben und deine Spieltermine als Kalenderdatei zu speichern.
+      </p>
+    </section>
+
+    <!-- Termin-Tabelle -->
+    <section class="schedule" aria-label="Terminübersicht">
+      <div class="schedule__scroll">
+        <table class="schedule__table">
+          <thead>
+            <tr>
+              <th scope="col">#</th>
+              <th scope="col">Datum</th>
+              <th scope="col">Uhrzeit</th>
+              <th scope="col">Setzt aus</th>
+              <th scope="col">Spieler</th>
+            </tr>
+          </thead>
+          <tbody id="scheduleBody"></tbody>
+        </table>
+      </div>
+    </section>
+
+    <footer class="page__footer">
+      <p>5 Spieler &middot; max. 4 gleichzeitig &middot; pro Woche setzt eine Person aus.</p>
+    </footer>
+  </main>
+
+  <script src="script.js"></script>
+</body>
+</html>
