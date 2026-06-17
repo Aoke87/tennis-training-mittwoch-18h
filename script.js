@@ -6,7 +6,13 @@
 const PLAYERS = ["Philipp", "Sebastian", "Christopher", "Martina", "Karsten"];
 
 // Aussetz-Reihenfolge (alphabetisch), zyklisch
-const SITOUT_ORDER = ["Christopher", "Karsten", "Martina", "Philipp", "Sebastian"];
+const SITOUT_ORDER = [
+  "Karsten",
+  "Sebastian",
+  "Martina",
+  "Philipp",
+  "Christopher",
+];
 
 // Saison: jeden Mittwoch, 18:00-19:00 Uhr
 const SEASON_START = { y: 2026, m: 6, d: 17 }; // Mi, 17.06.2026
@@ -14,8 +20,20 @@ const SEASON_END = { y: 2026, m: 10, d: 7 }; // Mi, 07.10.2026
 const START_HOUR = 18;
 const END_HOUR = 19;
 
-const WEEKDAYS = ["Sonntag", "Montag", "Dienstag", "Mittwoch", "Donnerstag", "Freitag", "Samstag"];
-const WEEKDAYS_SHORT = ["So", "Mo", "Di", "Mi", "Do", "Fr", "Sa"];
+// Sommerferien: in diesem Zeitraum (inklusive) finden keine Termine statt
+const BREAK_START = { y: 2026, m: 7, d: 20 }; // Mo, 20.07.2026
+const BREAK_END = { y: 2026, m: 9, d: 1 }; // Di, 01.09.2026
+
+const WEEKDAYS = [
+  "Montag",
+  "Dienstag",
+  "Mittwoch",
+  "Donnerstag",
+  "Freitag",
+  "Samstag",
+  "Sonntag",
+];
+const WEEKDAYS_SHORT = ["Mo", "Di", "Mi", "Do", "Fr", "Sa", "So"];
 
 // --- Hilfsfunktionen -------------------------------------------------------
 
@@ -32,34 +50,49 @@ function pad2(n) {
   return String(n).padStart(2, "0");
 }
 
+// getDay(): 0 = Sonntag ... 6 = Samstag -> auf "Montag zuerst"-Arrays mappen
+function weekdayIndex(date) {
+  return (date.getDay() + 6) % 7;
+}
+
 function formatDateLong(date) {
-  return `${WEEKDAYS_SHORT[date.getDay()]}, ${pad2(date.getDate())}.${pad2(date.getMonth() + 1)}.${date.getFullYear()}`;
+  return `${WEEKDAYS_SHORT[weekdayIndex(date)]}, ${pad2(date.getDate())}.${pad2(date.getMonth() + 1)}.${date.getFullYear()}`;
 }
 
 function formatDateFull(date) {
-  return `${WEEKDAYS[date.getDay()]}, ${pad2(date.getDate())}.${pad2(date.getMonth() + 1)}.${date.getFullYear()}`;
+  return `${WEEKDAYS[weekdayIndex(date)]}, ${pad2(date.getDate())}.${pad2(date.getMonth() + 1)}.${date.getFullYear()}`;
 }
 
 // --- Terminplan erzeugen ---------------------------------------------------
+
+function isInBreak(date) {
+  const t = startOfDay(date).getTime();
+  const start = makeDate(BREAK_START.y, BREAK_START.m, BREAK_START.d).getTime();
+  const end = makeDate(BREAK_END.y, BREAK_END.m, BREAK_END.d).getTime();
+  return t >= start && t <= end;
+}
 
 function buildSchedule() {
   const sessions = [];
   const end = makeDate(SEASON_END.y, SEASON_END.m, SEASON_END.d);
   let current = makeDate(SEASON_START.y, SEASON_START.m, SEASON_START.d);
-  let i = 0;
+  let played = 0;
 
   while (current.getTime() <= end.getTime()) {
-    const sitOut = SITOUT_ORDER[i % SITOUT_ORDER.length];
-    const playing = PLAYERS.filter((p) => p !== sitOut);
-    sessions.push({
-      index: i + 1,
-      date: new Date(current),
-      sitOut,
-      playing,
-    });
+    // Ferien-Termine ueberspringen; die Rotation laeuft nur ueber tatsaechliche Termine weiter
+    if (!isInBreak(current)) {
+      const sitOut = SITOUT_ORDER[played % SITOUT_ORDER.length];
+      const playing = PLAYERS.filter((p) => p !== sitOut);
+      sessions.push({
+        index: played + 1,
+        date: new Date(current),
+        sitOut,
+        playing,
+      });
+      played += 1;
+    }
     current = new Date(current);
     current.setDate(current.getDate() + 7);
-    i += 1;
   }
   return sessions;
 }
@@ -103,7 +136,7 @@ function renderStatus(today) {
   nextOutInlineEl.textContent = `${next.sitOut} setzt aus`;
 
   const diffDays = Math.round(
-    (startOfDay(next.date).getTime() - startOfDay(today).getTime()) / 86400000
+    (startOfDay(next.date).getTime() - startOfDay(today).getTime()) / 86400000,
   );
   if (diffDays === 0) {
     countdownEl.textContent = "Heute!";
@@ -120,6 +153,23 @@ function renderTable(today) {
   tbody.innerHTML = "";
 
   SCHEDULE.forEach((session, i) => {
+    // Trennzeile fuer die Sommerpause, wenn zwischen zwei Terminen mehr als eine Woche liegt
+    if (i > 0) {
+      const prev = SCHEDULE[i - 1];
+      const gapDays = Math.round(
+        (startOfDay(session.date).getTime() - startOfDay(prev.date).getTime()) / 86400000,
+      );
+      if (gapDays > 7) {
+        const breakTr = document.createElement("tr");
+        breakTr.className = "row--break";
+        const breakTd = document.createElement("td");
+        breakTd.colSpan = 5;
+        breakTd.textContent = `Sommerpause \u00b7 keine Termine (${pad2(BREAK_START.d)}.${pad2(BREAK_START.m)}. \u2013 ${pad2(BREAK_END.d)}.${pad2(BREAK_END.m)}.${BREAK_END.y})`;
+        breakTr.appendChild(breakTd);
+        tbody.appendChild(breakTr);
+      }
+    }
+
     const tr = document.createElement("tr");
     const isPast = startOfDay(session.date).getTime() < todayStart;
     const isNext = i === nextIndex;
@@ -186,12 +236,14 @@ function renderTable(today) {
 function populateSelect() {
   const select = document.getElementById("personSelect");
   // alphabetisch sortiert fuer die Auswahl
-  [...PLAYERS].sort((a, b) => a.localeCompare(b, "de")).forEach((p) => {
-    const opt = document.createElement("option");
-    opt.value = p;
-    opt.textContent = p;
-    select.appendChild(opt);
-  });
+  [...PLAYERS]
+    .sort((a, b) => a.localeCompare(b, "de"))
+    .forEach((p) => {
+      const opt = document.createElement("option");
+      opt.value = p;
+      opt.textContent = p;
+      select.appendChild(opt);
+    });
 }
 
 // --- .ics Export -----------------------------------------------------------
@@ -258,7 +310,7 @@ function buildIcs(person) {
       `DTEND;TZID=Europe/Berlin:${icsDateTime(s.date, END_HOUR)}`,
       "SUMMARY:Tennis Training",
       `DESCRIPTION:Diese Woche setzt ${s.sitOut} aus. Spieler: ${s.playing.join(", ")}.`,
-      "END:VEVENT"
+      "END:VEVENT",
     );
   });
 

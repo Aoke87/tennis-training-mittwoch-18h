@@ -370,6 +370,26 @@ body {
   font-size: 0.85rem;
 }
 
+/* Kleine Ueberschrift ueber Bloecken (wie das Heute-Label) */
+.block-heading {
+  margin: 0 0 10px 2px;
+  font-size: 0.78rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--text-muted);
+}
+
+/* Trennzeile fuer die Sommerpause */
+.row--break td {
+  text-align: center;
+  font-size: 0.85rem;
+  font-weight: 500;
+  color: var(--text-muted);
+  background: #fafbfa;
+  padding: 12px 16px;
+}
+
 /* In den "Naechster Termin"-Block integrierter Aussetzer - nur mobil sichtbar */
 .status-card__out {
   display: none;
@@ -383,12 +403,13 @@ body {
     flex-direction: column;
   }
 
-  /* Reihenfolge mobil: Header, Status, Tabelle, Steuerung (Download), Footer */
+  /* Reihenfolge mobil: Header, Status, Ueberschrift, Tabelle, Steuerung (Download), Footer */
   .page__header { order: 0; }
   .status { order: 1; }
-  .schedule { order: 2; }
-  .controls { order: 3; }
-  .page__footer { order: 4; }
+  .block-heading { order: 2; }
+  .schedule { order: 3; }
+  .controls { order: 4; }
+  .page__footer { order: 5; }
 
   /* Status: nur noch der "Naechster Termin"-Block als Kachel */
   .status {
@@ -490,6 +511,19 @@ body {
     display: block;
     padding: 0;
     border: none;
+  }
+
+  /* Sommerpause-Trennzeile bleibt einzeilig und voll breit */
+  .schedule__table tbody tr.row--break {
+    display: block;
+    padding: 0;
+  }
+
+  .schedule__table tbody tr.row--break td {
+    display: block;
+    width: 100%;
+    padding: 12px 16px;
+    text-align: center;
   }
 
   .schedule__table tbody td.cell-num {
