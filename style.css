@@ -440,6 +440,13 @@ body {
     color: var(--text-muted);
   }
 
+  /* "Naechster Termin" deutlicher abheben, damit er nicht wie eine Tabellenzeile wirkt */
+  .status-card--accent {
+    border: 2px solid var(--accent);
+    box-shadow: 0 6px 18px rgba(63, 155, 70, 0.2);
+    padding: 18px;
+  }
+
   /* Separate Aussetzer-Kachel entfaellt - im naechsten Termin integriert */
   .status-card--out {
     display: none;

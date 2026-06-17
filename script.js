@@ -16,7 +16,7 @@ const SITOUT_ORDER = [
 
 // Saison: jeden Mittwoch, 18:00-19:00 Uhr
 const SEASON_START = { y: 2026, m: 6, d: 17 }; // Mi, 17.06.2026
-const SEASON_END = { y: 2026, m: 10, d: 7 }; // Mi, 07.10.2026
+const SEASON_END = { y: 2026, m: 9, d: 30 }; // Mi, 30.09.2026
 const START_HOUR = 18;
 const END_HOUR = 19;
 
